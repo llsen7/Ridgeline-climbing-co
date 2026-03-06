@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>soon.</title>
+<style>
+body{
+    background:black;
+    color:white;
+    font-family:Courier New, monospace;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+    text-align:center;
+    margin:0;
+}
+.container{
+    max-width:500px;
+}
+input{
+    background:transparent;
+    border:1px solid #444;
+    padding:12px;
+    color:white;
+    width:100%;
+    box-sizing:border-box;
+}
+button{
+    background:transparent;
+    border:1px solid #444;
+    color:#aaa;
+    padding:10px 20px;
+    margin-top:10px;
+    cursor:pointer;
+}
+button:hover{
+    border-color:#fff;
+    color:#fff;
+}
+.secret{
+    position:fixed;
+    bottom:10px;
+    right:10px;
+    width:40px;
+    height:40px;
+    opacity:0;
+    cursor:pointer;
+}
+#codeSection{
+    display:none;
+    margin-top:20px;
+}
+#unlockPage{
+    display:none;
+}
+#wrongCodeMsg{
+    display:none;
+    color:#ff5555;
+    margin-top:10px;
+    font-size:14px;
+}
+.smallHint{
+    color:#555;
+    font-size:12px;
+    margin-top:40px;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<!-- LANDING PAGE -->
+<div id="landingPage">
+
+<h1>soon.</h1>
+<p>something is being prepared.</p>
+
+<p class="smallHint">
+hint: the best climbs start right at the bottom
+</p>
+
+<!-- Email Signup Form -->
+<form id="emailForm">
+<input type="email" name="email" placeholder="leave your signal" required>
+<br>
+<button type="submit">send</button>
+</form>
+
+<!-- Hidden Code Section -->
+<div id="codeSection">
+<input id="codeInput" placeholder="enter code">
+<br>
+<button onclick="checkCode()">unlock</button>
+</div>
+
+<!-- Wrong code message -->
+<div id="wrongCodeMsg">Wrong code! Keep looking…</div>
+
+</div> <!-- end landingPage -->
+
+<!-- UNLOCK PAGE -->
+<div id="unlockPage">
+<h1>you found it.</h1>
+<p>You are climber #<span id="count"></span></p>
+<p>the first 100 will know before the rest.</p>
+</div>
+
+</div> <!-- end container -->
+
+<!-- Hidden click area -->
+<div class="secret" onclick="showCodeBox()"></div>
+
+<script>
+// Show the secret code input
+function showCodeBox(){
+    document.getElementById("codeSection").style.display = "block";
+}
+
+// Check secret code
+async function checkCode(){
+    let code = document.getElementById("codeInput").value;
+
+    if(code.toLowerCase() === "first100"){
+
+        // Increment CountAPI counter
+        let response = await fetch("https://api.countapi.xyz/hit/gunks-shirts/first100");
+        let data = await response.json();
+
+        // Show the current count on the unlock page
+        document.getElementById("count").innerText = data.value;
+
+        // Switch pages
+        document.getElementById("landingPage").style.display = "none";
+        document.getElementById("unlockPage").style.display = "block";
+
+    } else {
+        // Show wrong code message for 3 seconds
+        let msg = document.getElementById("wrongCodeMsg");
+        msg.style.display = "block";
+        setTimeout(() => { msg.style.display = "none"; }, 3000);
+    }
+}
+
+// Email signup
+const form = document.getElementById("emailForm");
+const responseDiv = document.getElementById("wrongCodeMsg"); // reuse for messages
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const email = form.email.value;
+
+  const res = await fetch("/api/subscribe", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email })
+  });
+
+  const data = await res.json();
+  responseDiv.innerText = data.message;
+  responseDiv.style.color = res.ok ? "#0f0" : "#ff5555";
+  responseDiv.style.display = "block";
+  setTimeout(() => { responseDiv.style.display = "none"; }, 3000);
+
+  if(res.ok) form.reset();
+});
+</script>
+
+</body>
+</html>
