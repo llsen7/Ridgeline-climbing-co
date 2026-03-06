@@ -34,4 +34,5 @@ export default function handler(req, res) {
   fs.writeFileSync(filePath, JSON.stringify(emails, null, 2));
 
   return res.status(200).json({ message: "Thanks! You’re on the radar." });
+
 }
